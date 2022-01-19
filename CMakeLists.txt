@@ -1,15 +1,113 @@
 cmake_minimum_required(VERSION 3.20)
 project(gpiointerrupt_EK_TM4C1294XL_TI)
 
+# Append to the CMake module path our local cmake directory so CMake knows of our custom modules.
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules")
 
-# TODO XDCTools
+
+set(TI_COMPILER_ARGS
+    -mv7M4
+    --code_state=16
+    --float_support=FPv4SPD16
+    -me
+    # --include_path=\"C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI\"
+    # --include_path=\"C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI\"
+    # --include_path=\"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b\"
+    # --include_path=\"C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages/ti/sysbios/posix\"
+    # --include_path=\"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include\"
+    # --define=ccs=\"ccs\"
+    # --define=PART_TM4C1294NCPDT
+    # --define=ccs
+    # --define=TIVAWARE
+    -g
+    --gcc
+    --diag_warning=225
+    --diag_warning=255
+    --diag_wrap=off
+    --display_error_number
+    --gen_func_subsections=on
+    --abi=eabi)
 
 
-add_executable(hello
+#
+# XDCTools
+#
+
+find_package(XDCTools REQUIRED)
+
+if(DEFINED TI_CGT_DIR)
+    set(TIRTOS_INCLUDE_DIR "C:/ti/tirtos_tivac_2_16_00_08")
+    set(TIRTOS_TIDRIVERS_INCLUDE_DIR "C:/ti/tirtos_tivac_2_16_00_08/products/tidrivers_tivac_2_16_00_08")
+    set(TIRTOS_BIOS_INCLUDE_DIR "C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29")
+    set(TIRTOS_NDK_INCLUDE_DIR "C:/ti/tirtos_tivac_2_16_00_08/products/ndk_2_26_00_09")
+    set(TIRTOS_UIA_INCLUDE_DIR "C:/ti/tirtos_tivac_2_16_00_08/products/uia_2_00_05_50")
+    set(TIRTOS_NS_INCLUDE_DIR "C:/ti/tirtos_tivac_2_16_00_08/products/ns_1_11_00_10")
+    string(REPLACE "\"" "\\\"" TI_COMPILER_ARGS_STR "${TI_COMPILER_ARGS}")
+    string(REPLACE ";" " " TI_COMPILER_ARGS_STR "${TI_COMPILER_ARGS}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/xs_cmd.sh
+    "#!/usr/bin/env bash
+# This command is written to a script file as a workaround to CMake's complicated
+# rules around quotes and variables.
+# This command line was taken from the CCS build output.
+    ${XDCTools_XS} \\
+    --xdcpath=\"${TIRTOS_INCLUDE_DIR}/packages;${TIRTOS_TIDRIVERS_INCLUDE_DIR}/packages;${TIRTOS_BIOS_INCLUDE_DIR}/packages;${TIRTOS_NDK_INCLUDE_DIR}/packages;${TIRTOS_UIA_INCLUDE_DIR}/packages;${TIRTOS_NS_INCLUDE_DIR}/packages;\" \\
+      xdc.tools.configuro \\
+      -o ${CMAKE_CURRENT_BINARY_DIR}/configPkg \\
+      -t ti.targets.arm.elf.M4F \\
+      -p ti.platforms.tiva:TM4C1294NCPDT \\
+      -r release \\
+      -c \"${TI_CGT_DIR}\" \\
+      --compileOptions \\
+      \"${TI_COMPILER_ARGS_STR}\" \\
+      \"${CMAKE_CURRENT_SOURCE_DIR}/gpiointerrupt.cfg\"
+    ")
+# "C:/ti/xdctools_3_32_00_06_core/xs" --xdcpath="C:/ti/tirtos_tivac_2_16_00_08/packages;C:/ti/tirtos_tivac_2_16_00_08/products/tidrivers_tivac_2_16_00_08/packages;C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages;C:/ti/tirtos_tivac_2_16_00_08/products/ndk_2_25_00_09/packages;C:/ti/tirtos_tivac_2_16_00_08/products/uia_2_00_05_50/packages;C:/ti/tirtos_tivac_2_16_00_08/products/ns_1_11_00_10/packages;" xdc.tools.configuro -o configPkg -t ti.targets.arm.elf.M4F -p ti.platforms.tiva:TM4C1294NCPDT -r release -c "C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS" --compileOptions "-mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --include_path=\"C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI\" --include_path=\"C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI\" --include_path=\"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b\" --include_path=\"C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages/ti/sysbios/posix\" --include_path=\"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include\" --define=ccs=\"ccs\" --define=PART_TM4C1294NCPDT --define=ccs --define=TIVAWARE -g --gcc --diag_warning=225 --diag_warning=255 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi  " "../gpiointerrupt.cfg"
+
+# "C:/ti/xdctools_3_32_00_06_core/xs" \
+#     --xdcpath="C:/ti/tirtos_tivac_2_16_00_08/packages;C:/ti/tirtos_tivac_2_16_00_08/products/tidrivers_tivac_2_16_00_08/packages;C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages;C:/ti/tirtos_tivac_2_16_00_08/products/ndk_2_25_00_09/packages;C:/ti/tirtos_tivac_2_16_00_08/products/uia_2_00_05_50/packages;C:/ti/tirtos_tivac_2_16_00_08/products/ns_1_11_00_10/packages;" \
+#     xdc.tools.configuro \
+#     -o configPkg \
+#     -t ti.targets.arm.elf.M4F \
+#     -p ti.platforms.tiva:TM4C1294NCPDT \
+#     -r release \
+#     -c "C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS" \
+#     --compileOptions \
+#     "-mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --include_path=\"C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI\" --include_path=\"C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI\" --include_path=\"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b\" --include_path=\"C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages/ti/sysbios/posix\" --include_path=\"C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include\" --define=ccs=\"ccs\" --define=PART_TM4C1294NCPDT --define=ccs --define=TIVAWARE -g --gcc --diag_warning=225 --diag_warning=255 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi  " "../gpiointerrupt.cfg"
+
+    add_custom_command(COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/xs_cmd.sh
+        OUTPUT
+            ${CMAKE_CURRENT_BINARY_DIR}/configPkg/compiler.opt
+            ${CMAKE_CURRENT_BINARY_DIR}/configPkg/linker.cmd
+        COMMENT "Invoking: XDCTools for gpiointerrupt.cfg")
+    add_custom_target(gpiointerrupt-xdctools
+        DEPENDS
+            ${CMAKE_CURRENT_BINARY_DIR}/configPkg/compiler.opt
+            ${CMAKE_CURRENT_BINARY_DIR}/configPkg/linker.cmd)
+endif()
+
+
+add_executable(gpiointerrupt
+    gpiointerrupt.c
     EK_TM4C1294XL.c
-    EK_TM4C1294XL.cmd
-    gpiointerrupt.c)
-
+    EK_TM4C1294XL.cmd)
+# set_target_properties(gpiointerrupt PROPERTIES LINK_DEPENDS EK_TM4C1294XL.cmd)
+set_target_properties(gpiointerrupt PROPERTIES SUFFIX ".out")
+target_include_directories(gpiointerrupt
+    PRIVATE
+        "C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI"
+        "C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI"
+        "C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b"
+        "C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages/ti/sysbios/posix"
+        "C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include")
+target_compile_definitions(gpiointerrupt
+    PRIVATE
+        ccs=\"ccs\"
+        PART_TM4C1294NCPDT
+        ccs
+        TIVAWARE)
+target_compile_options(gpiointerrupt
+    PRIVATE
+        $<$<CXX_COMPILER_ID:TI>:${TI_COMPILER_ARGS};--cmd_file=${CMAKE_CURRENT_BINARY_DIR}/configPkg/compiler.opt>)
 
 
 
@@ -66,3 +164,33 @@ add_executable(hello
 
 # **** Build Finished ****
 
+
+# "C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/bin/armcl"
+# -mv7M4
+# --code_state=16
+# --float_support=FPv4SPD16
+# -me
+# --include_path="C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI"
+# --include_path="C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI"
+# --include_path="C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b"
+# --include_path="C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages/ti/sysbios/posix"
+# --include_path="C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include"
+# --define=ccs="ccs" --define=PART_TM4C1294NCPDT --define=ccs --define=TIVAWARE -g --gcc --diag_warning=225 --diag_warning=255 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi --preproc_with_compile --preproc_dependency="gpiointerrupt.d_raw" --cmd_file="configPkg/compiler.opt"  "../gpiointerrupt.c"
+
+#-------------------------------------------
+
+# C:\ti\ccs1031\ccs\tools\compiler\ti-cgt-arm_20.2.4.LTS\bin\armcl.exe
+# --compile_only
+# --c_file=C:\Users\erisch\workspace_v10_Q3_supervisor\gpiointerrupt_EK_TM4C1294XL_TI\gpiointerrupt.c
+# -DPART_TM4C1294NCPDT
+# -DTIVAWARE -Dccs -Dccs=\"ccs\"
+# --include_path=C:\Users\erisch\workspace_v10_Q3_supervisor\gpiointerrupt_EK_TM4C1294XL_TI
+# --include_path=C:\ti\tirtos_tivac_2_16_00_08\products\TivaWare_C_Series-2.1.1.71b
+# --include_path=C:\ti\tirtos_tivac_2_16_00_08\products\bios_6_45_01_29\packages\ti\sysbios\posix
+# --include_path=C:\ti\ccs1031\ccs\tools\compiler\ti-cgt-arm_20.2.4.LTS\include
+# -mv7M4
+# --code_state=16
+# --float_support=FPv4SPD16 -me --diag_wrap=off --display_error_number --gen_func_subsections=on --parallel=16 --abi=eabi -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me -g --gcc --diag_warning=225 --diag_warning=255 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi --preproc_with_compile --preproc_dependency=CMakeFiles\gpiointerrupt.dir\gpiointerrupt.c.obj.d --output_file=CMakeFiles\gpiointerrupt.dir\gpiointerrupt.c.obj
+
+# "C:\Users\erisch\workspace_v10_Q3_supervisor\gpiointerrupt_EK_TM4C1294XL_TI\gpiointerrupt.c", line 38: fatal error #1965: cannot open source file "xdc/std.h"
+# 1 catastrophic error detected in the compilation of "C:\Users\erisch\workspace_v10_Q3_supervisor\gpiointerrupt_EK_TM4C1294XL_TI\gpiointerrupt.c".
