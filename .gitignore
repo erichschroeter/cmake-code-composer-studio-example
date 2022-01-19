@@ -13,6 +13,7 @@ Release_Otis_AC/
 .xdchelp
 .config/
 **/targetConfigs/*
+src/*
 
 # Prerequisites
 *.d
@@ -97,21 +98,3 @@ latex/
 **/.vscode/*
 !.vscode/launch.json
 
-# generator.py
-Source/Parameter_Database/Pipfile.lock
-Source/Line/**/Config.h
-Source/Line/**/Config.cpp
-Source/Motor/**/Config.h
-Source/Motor/**/Config.cpp
-Source/Supervisor/**/Config.h
-Source/Supervisor/**/Config.cpp
-Source/Supervisor/**/Storage_*
-Source/Supervisor/Supervisor/src/sysbios/sysbios.aem4f
-Source/Supervisor/Python Programmer/__pycache__
-!Source/Motor/MotorCPU1/Motor_Linker_CPU1.cmd
-!Source/Motor/MotorCPU2/Motor_Linker_CPU2.cmd
-!Source/Line/LineCPU1/Line_Linker_CPU1.cmd
-!Source/Line/LineCPU2/Line_Linker_CPU2.cmd
-!Source/Supervisor/flash_boot/src/bl_link_ccs.cmd
-!Source/Supervisor/Supervisor/tm4c1294ncpdt.cmd
-/Source/Supervisor/Python Programmer/config.local
