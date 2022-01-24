@@ -2,6 +2,7 @@
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CMAKE_SYSTEM_VERSION 1)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # Setup CMake's rules for using the CMAKE_FIND_ROOT_PATH for cross-compilation.
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -63,8 +64,15 @@ find_path(_CXX_STANDARD_INCLUDE_DIRECTORIES
     PATHS ${TI_CGT_DIR}
     PATH_SUFFIXES "include/libcxx"
     NO_CACHE)
-list(APPEND _CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_C_STANDARD_INCLUDE_DIRECTORIES})
-set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${_CXX_STANDARD_INCLUDE_DIRECTORIES} CACHE PATH "Standard include directories for C++ programs.")
+# list(APPEND _CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_C_STANDARD_INCLUDE_DIRECTORIES})
+# set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${_CXX_STANDARD_INCLUDE_DIRECTORIES} CACHE PATH "Standard include directories for C++ programs.")
+include_directories(
+    ${_CMAKE_C_STANDARD_INCLUDE_DIRECTORIES}
+    ${_CXX_STANDARD_INCLUDE_DIRECTORIES}
+)
+link_directories(${TI_CGT_DIR}/lib)
+# set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "c" CACHE STRING "Standard link libraries for C programs.")
+# set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "c" CACHE STRING "Standard link libraries for C++ programs.")
 
 # Let CMake to detect how many cores we can compile with.
 include(ProcessorCount)
@@ -107,7 +115,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS}" CACHE STRING "Flags used by the
 
 # Unfortunately, we need to force CMake to think the compiler works due to the TI compiler
 # having issues trying to compile its test programs.
-set(CMAKE_C_COMPILER_WORKS 1)
-set(CMAKE_CXX_COMPILER_WORKS 1)
+# set(CMAKE_C_COMPILER_WORKS 1)
+# set(CMAKE_CXX_COMPILER_WORKS 1)
 
 message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")

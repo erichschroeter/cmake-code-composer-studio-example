@@ -76,40 +76,98 @@ if(DEFINED TI_CGT_DIR)
 
     add_custom_command(COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/xs_cmd.sh
         OUTPUT
+            # ${CMAKE_CURRENT_BINARY_DIR}/configPkg/package/cfg/gpiointerrupt_pem4f.c
             ${CMAKE_CURRENT_BINARY_DIR}/configPkg/compiler.opt
             ${CMAKE_CURRENT_BINARY_DIR}/configPkg/linker.cmd
         COMMENT "Invoking: XDCTools for gpiointerrupt.cfg")
     add_custom_target(gpiointerrupt-xdctools
         DEPENDS
+            # ${CMAKE_CURRENT_BINARY_DIR}/configPkg/package/cfg/gpiointerrupt_pem4f.c
             ${CMAKE_CURRENT_BINARY_DIR}/configPkg/compiler.opt
             ${CMAKE_CURRENT_BINARY_DIR}/configPkg/linker.cmd)
+    add_library(gpiointerrupt-xdc INTERFACE)
+        # ${CMAKE_CURRENT_BINARY_DIR}/configPkg/package/cfg/gpiointerrupt_pem4f.c)
+    target_link_libraries(gpiointerrupt-xdc
+        INTERFACE
+            ${CMAKE_CURRENT_BINARY_DIR}/configPkg/linker.cmd)
+            # -llibc.a)
+    # target_compile_definitions(gpiointerrupt-xdc
+    #     INTERFACE
+    #         xdc_target_types__=ti/targets/arm/elf/std.h
+    #         xdc_target_name__=M4F
+    #         xdc_cfg__xheader__="C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI/build/configPkg/package/cfg/gpiointerrupt_pem4f.h")
+    # target_include_directories(gpiointerrupt-xdc
+    #     PUBLIC
+    #         "C:/ti/tirtos_tivac_2_16_00_08/packages"
+    #         "C:/ti/tirtos_tivac_2_16_00_08/products/tidrivers_tivac_2_16_00_08/packages"
+    #         "C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages"
+    #         "C:/ti/tirtos_tivac_2_16_00_08/products/ndk_2_26_00_09/packages"
+    #         "C:/ti/tirtos_tivac_2_16_00_08/products/uia_2_00_05_50/packages"
+    #         "C:/ti/tirtos_tivac_2_16_00_08/products/ns_1_11_00_10/packages"
+    #         "C:/ti/xdctools_3_32_00_06_core/packages"
+    #         "C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI/build/configPkg/.."
+    #         C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include/rts
+    #         C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include
+    #         ${XDCTools_INCLUDE_DIRS})
+    add_dependencies(gpiointerrupt-xdc gpiointerrupt-xdctools)
 endif()
 
 
 add_executable(gpiointerrupt
     gpiointerrupt.c
-    EK_TM4C1294XL.c
-    EK_TM4C1294XL.cmd)
+    EK_TM4C1294XL.c)
+    # EK_TM4C1294XL.cmd)
 # set_target_properties(gpiointerrupt PROPERTIES LINK_DEPENDS EK_TM4C1294XL.cmd)
 set_target_properties(gpiointerrupt PROPERTIES SUFFIX ".out")
 target_include_directories(gpiointerrupt
     PRIVATE
         "C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI"
-        "C:/Users/erisch/workspace_v10_Q3_supervisor/gpiointerrupt_EK_TM4C1294XL_TI"
         "C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b"
         "C:/ti/tirtos_tivac_2_16_00_08/products/bios_6_45_01_29/packages/ti/sysbios/posix"
+        "C:/ti/tirtos_tivac_2_16_00_08/products/ndk_2_25_00_09/packages"
         "C:/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/include")
+        # "C:/ti/tirtos_tivac_2_16_00_08/products/ndk_2_25_00_09/packages/ti/ndk/inc/stkmain.h"
 target_compile_definitions(gpiointerrupt
     PRIVATE
-        ccs=\"ccs\"
+        ccs=ccs
         PART_TM4C1294NCPDT
         ccs
         TIVAWARE)
 target_compile_options(gpiointerrupt
     PRIVATE
-        $<$<CXX_COMPILER_ID:TI>:${TI_COMPILER_ARGS};--cmd_file=${CMAKE_CURRENT_BINARY_DIR}/configPkg/compiler.opt>)
+        $<$<CXX_COMPILER_ID:TI>:--cmd_file=${CMAKE_CURRENT_BINARY_DIR}/configPkg/compiler.opt>)
+        # $<$<CXX_COMPILER_ID:TI>:${TI_COMPILER_ARGS};--cmd_file=${CMAKE_CURRENT_BINARY_DIR}/configPkg/compiler.opt>)
+target_link_directories(gpiointerrupt
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_options(gpiointerrupt
+    PRIVATE
+        --heap_size=0
+        --stack_size=512
+        --reread_libs
+        --warn_sections
+        --rom_model)
+target_link_libraries(gpiointerrupt
+    gpiointerrupt-xdc
+    EK_TM4C1294XL.cmd
+    -l"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b/grlib/ccs/Debug/grlib.lib"
+    -l"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b/usblib/ccs/Debug/usblib.lib"
+    -l"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b/driverlib/ccs/Debug/driverlib.lib"
+    -llibc.a)
 
 
+# set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "c" CACHE STRING "Standard link libraries for C programs.")
+# set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "c" CACHE STRING "Standard link libraries for C++ programs.")
+# add_executable(main main.c)
+# set_target_properties(main PROPERTIES SUFFIX ".out")
+# target_link_directories(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# target_link_libraries(main
+#     EK_TM4C1294XL.cmd
+#     -llibc.a)
+# -l"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b/grlib/ccs/Debug/grlib.lib"
+# -l"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b/usblib/ccs/Debug/usblib.lib"
+# -l"C:/ti/tirtos_tivac_2_16_00_08/products/TivaWare_C_Series-2.1.1.71b/driverlib/ccs/Debug/driverlib.lib"
+# target_link_options(main BEFORE PRIVATE -llibc.a)
 
 # **** Build of configuration Debug for project gpiointerrupt_EK_TM4C1294XL_TI ****
 
