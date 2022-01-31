@@ -103,10 +103,15 @@ endif()
 
 
 add_executable(gpiointerrupt
+    # ${CMAKE_CURRENT_BINARY_DIR}/configPkg/linker.cmd
     EK_TM4C1294XL.cmd
     gpiointerrupt.c
     EK_TM4C1294XL.c)
     # EK_TM4C1294XL.cmd)
+set_source_files_properties(
+    ${CMAKE_CURRENT_BINARY_DIR}/configPkg/linker.cmd
+    EK_TM4C1294XL.cmd
+    PROPERTIES EXTERNAL_OBJECT TRUE)
 # set_target_properties(gpiointerrupt PROPERTIES LINK_DEPENDS EK_TM4C1294XL.cmd)
 set_target_properties(gpiointerrupt PROPERTIES SUFFIX ".out")
 target_include_directories(gpiointerrupt
@@ -132,8 +137,7 @@ target_link_directories(gpiointerrupt
         ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_options(gpiointerrupt
     PRIVATE
-        -g
-        --define=ccs=ccs
+        --define=ccs=\"ccs\"
         --define=PART_TM4C1294NCPDT
         --define=ccs
         --define=TIVAWARE
